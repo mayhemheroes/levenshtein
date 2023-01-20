@@ -1,0 +1,4 @@
+project: levenshtein
+target: levenshtein-computedist-fuzz
+cmds:
+  - cmd: ./computedist-fuzz.libfuzzer
