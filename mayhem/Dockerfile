@@ -1,13 +1,16 @@
-FROM fuzzers/go-fuzz:1.2.0 as builder
+FROM golang:1.21 AS builder
 
-ARG project='levenshtein'
-ARG fuzzTargetPath='fuzz'
-ARG fuzzTarget='computedist-fuzz'
+ENV GOTOOLCHAIN=auto
+
+ARG project="levenshtein"
+ARG fuzzTargetPath="fuzz"
+ARG fuzzTarget="computedist-fuzz"
 
 ADD . ${project}
 WORKDIR ${project}
-RUN GO_ENABLED=0 go-fuzz-build -libfuzzer -o /${fuzzTarget}.a ./${fuzzTargetPath}
-RUN clang -fsanitize=fuzzer /${fuzzTarget}.a -o /${fuzzTarget}.libfuzzer
+RUN go test -c -fuzz=FuzzComputeDistance \
+    -o /${fuzzTarget}.libfuzzer \
+    ./${fuzzTargetPath}
 
 FROM ubuntu:20.04
 COPY --from=builder /computedist-fuzz.libfuzzer /
